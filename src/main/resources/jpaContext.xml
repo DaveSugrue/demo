@@ -1,3 +1,4 @@
+<!-- 
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:tx="http://www.springframework.org/schema/tx"
@@ -39,5 +40,52 @@
 	</bean>
 	
 	<tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>
+
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+
+
+    <!-- This says "I want to use Annotations". We could scan repo and services separately, but let's do all -->
+    <context:annotation-config /> 
+    <context:component-scan base-package="ie.sugrue"/>
+
+    <!-- Tells Spring to use the persistence context annotation" -->
+    <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" /> 
+
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="persistenceUnitName" value="punit"/>
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="showSql" value="true" />
+            </bean>
+        </property> 
+
+        <!-- Properties specific to Hibernate -->
+        <property name="jpaPropertyMap">
+            <map>
+            <entry key="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"></entry>              
+                <entry key="hibernate.hbm2ddl.auto" value="create-drop"/>
+<!--            <prop key="hibernate.show_sql">true</prop> -->
+                <entry key="hibernate.show_sql" value="true"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"></property>
+    </bean>
+
+    <!-- We will configure transactions using annotations -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
 
 </beans>
